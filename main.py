@@ -36,7 +36,7 @@ kwargs = {'num_workers': 1, 'pin_memory': True} if args.cuda else {}
 train_data = MyDataset("./data/daf/train", transforms.ToTensor())
 test_data = MyDataset("./data/daf/test", transforms.ToTensor())
 train_loader = torch.utils.data.DataLoader(train_data, batch_size=args.batch_size, shuffle=True)
-test_loader = torch.utils.data.DataLoader(test_data, 1, shuffle=False)
+test_loader = torch.utils.data.DataLoader(test_data, batch_size=8, shuffle=False)
 # train_loader = torch.utils.data.DataLoader(
 #     datasets.MNIST('data', train=True, download=True,
 #                    transform=transforms.ToTensor()),
@@ -125,7 +125,7 @@ def test(epoch):
             if i == 0:
                 n = min(data.size(0), 8)
                 comparison = torch.cat([data[:n],
-                                        recon_batch.view(args.batch_size, 1, 120, 160)[:n]])
+                                        recon_batch.view(8, 1, 120, 160)[:n]])
                 save_image(comparison.cpu(),
                            'results/reconstruction_' + str(epoch) + '.png', nrow=n)
 
@@ -135,7 +135,7 @@ def test(epoch):
 
 if __name__ == "__main__":
     for epoch in range(1, args.epochs + 1):
-        # train(epoch)
+        train(epoch)
         test(epoch)
         with torch.no_grad():
             sample = torch.randn(64, 20).to(device)
