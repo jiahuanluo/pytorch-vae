@@ -33,8 +33,10 @@ torch.set_num_threads(8)
 device = torch.device("cuda" if args.cuda else "cpu")
 
 kwargs = {'num_workers': 1, 'pin_memory': True} if args.cuda else {}
-train_data = MyDataset("./data/daf", transforms.ToTensor())
-train_loader = torch.utils.data.DataLoader(train_data)
+train_data = MyDataset("./data/daf/train", transforms.ToTensor())
+test_data = MyDataset("./data/daf/test", transforms.ToTensor())
+train_loader = torch.utils.data.DataLoader(train_data, batch_size=args.batch_size, shuffle=True)
+test_loader = torch.utils.data.DataLoader(test_data, 1, shuffle=False)
 # train_loader = torch.utils.data.DataLoader(
 #     datasets.MNIST('data', train=True, download=True,
 #                    transform=transforms.ToTensor()),
@@ -116,14 +118,14 @@ def test(epoch):
     model.eval()
     test_loss = 0
     with torch.no_grad():
-        for i, (data, _) in enumerate(test_loader):
+        for i, data in enumerate(test_loader):
             data = data.to(device)
             recon_batch, mu, logvar = model(data)
             test_loss += loss_function(recon_batch, data, mu, logvar).item()
             if i == 0:
                 n = min(data.size(0), 8)
                 comparison = torch.cat([data[:n],
-                                        recon_batch.view(args.batch_size, 1, 28, 28)[:n]])
+                                        recon_batch.view(args.batch_size, 1, 120, 160)[:n]])
                 save_image(comparison.cpu(),
                            'results/reconstruction_' + str(epoch) + '.png', nrow=n)
 
@@ -133,10 +135,10 @@ def test(epoch):
 
 if __name__ == "__main__":
     for epoch in range(1, args.epochs + 1):
-        train(epoch)
+        # train(epoch)
         test(epoch)
         with torch.no_grad():
             sample = torch.randn(64, 20).to(device)
             sample = model.decode(sample).cpu()
-            save_image(sample.view(64, 1, 28, 28),
+            save_image(sample.view(64, 1, 120, 160),
                        'results/sample_' + str(epoch) + '.png')
