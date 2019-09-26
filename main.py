@@ -84,6 +84,8 @@ optimizer = optim.Adam(model.parameters(), lr=1e-3)
 
 # Reconstruction + KL divergence losses summed over all elements and batch
 def loss_function(recon_x, x, mu, logvar):
+    print(recon_x.shape)
+    print(x.shape)
     BCE = F.binary_cross_entropy(recon_x, x.view(-1, 19200), reduction='sum')
 
     # see Appendix B from VAE paper:
