@@ -84,8 +84,6 @@ optimizer = optim.Adam(model.parameters(), lr=1e-3)
 
 # Reconstruction + KL divergence losses summed over all elements and batch
 def loss_function(recon_x, x, mu, logvar):
-    print(recon_x.shape)
-    print(x.shape)
     BCE = F.binary_cross_entropy(recon_x, x.view(-1, 19200), reduction='sum')
 
     # see Appendix B from VAE paper:
@@ -144,6 +142,6 @@ if __name__ == "__main__":
         test(epoch)
         with torch.no_grad():
             sample = torch.randn(64, 20).to(device)
-            sample = model.decode(sample).cpu()
+            sample = model.decoder(sample).cpu()
             save_image(sample.view(64, 1, 120, 160),
                        'results/sample_' + str(epoch) + '.png')
