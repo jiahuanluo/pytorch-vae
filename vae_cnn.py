@@ -14,9 +14,9 @@ from torchvision.utils import save_image
 
 os.environ['CUDA_VISIBLE_DEVICES'] = '3'
 # changed configuration to this instead of argparse for easier interaction
-CUDA = False
+CUDA = True
 SEED = 1
-BATCH_SIZE = 1
+BATCH_SIZE = 128
 LOG_INTERVAL = 10
 EPOCHS = 10
 no_of_sample = 10
@@ -197,7 +197,7 @@ def test(epoch):
         # we're only going to infer, so no autograd at all required: volatile=True
         data = Variable(data, volatile=True)
         recon_batch, mu, logvar = model(data)
-        test_loss += model.loss_function(recon_batch, data, mu, logvar).data[0]
+        test_loss += model.loss_function(recon_batch, data, mu, logvar).item()
         if i == 0:
             n = min(data.size(0), 8)
             # for the first 128 batch of the epoch, show the first 8 input digits
@@ -205,7 +205,7 @@ def test(epoch):
             comparison = torch.cat([data[:n],
                                     recon_batch.view(BATCH_SIZE, 1, 28, 28)[:n]])
             save_image(comparison.data.cpu(),
-                       './mnist/reconstruction_' + str(epoch) + '.png', nrow=n)
+                       './result/reconstruction_' + str(epoch) + '.png', nrow=n)
 
     test_loss /= len(test_loader.dataset)
     print('====> Test set loss: {:.4f}'.format(test_loss))
@@ -226,4 +226,4 @@ if __name__ == "__main__":
         # save out as an 8x8 matrix of MNIST digits
         # this will give you a visual idea of how well latent space can generate things
         # that look like digits
-        save_image(sample.data.view(64, 1, 28, 28), './mnist/reconstruction' + str(epoch) + '.png')
+        save_image(sample.data.view(64, 1, 28, 28), './result/reconstruction' + str(epoch) + '.png')
