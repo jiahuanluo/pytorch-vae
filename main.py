@@ -140,8 +140,8 @@ if __name__ == "__main__":
     for epoch in range(1, args.epochs + 1):
         train(epoch)
         test(epoch)
-        with torch.no_grad():
-            sample = torch.randn(64, 20).to(device)
-            sample = model.decoder(sample).cpu()
-            save_image(sample.view(64, 1, 120, 160),
-                       'results/sample_' + str(epoch) + '.png')
+        #with torch.no_grad():
+        #    sample = torch.randn(64, 120, 160).to(device)
+        #    sample = model.decoder(sample).cpu()
+        #    save_image(sample.view(64, 1, 120, 160),
+        #               'results/sample_' + str(epoch) + '.png')
