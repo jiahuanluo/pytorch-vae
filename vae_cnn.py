@@ -17,9 +17,9 @@ os.environ['CUDA_VISIBLE_DEVICES'] = '3'
 # changed configuration to this instead of argparse for easier interaction
 CUDA = True if torch.cuda.is_available() else False
 SEED = 1
-BATCH_SIZE = 128
+BATCH_SIZE = 32
 LOG_INTERVAL = 10
-EPOCHS = 10
+EPOCHS = 100
 no_of_sample = 10
 
 # connections through the autoencoder bottleneck
@@ -201,7 +201,7 @@ def test(epoch):
             # for the first 128 batch of the epoch, show the first 8 input digits
             # with right below them the reconstructed output digits
             comparison = torch.cat([data[:n],
-                                    recon_batch.view(BATCH_SIZE, 1, 28, 28)[:n]])
+                                    recon_batch.view(8, 1, 28, 28)[:n]])
             save_image(comparison.data.cpu(),
                        './result/reconstruction_' + str(epoch) + '.png', nrow=n)
 
