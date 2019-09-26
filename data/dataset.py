@@ -18,6 +18,7 @@ class MyDataset(Dataset):
     def __getitem__(self, item):
         img = self.imgs[item]
         img = Image.open(img)
+        img = img.resize((28, 28))
         if self.transform is not None:
             img = self.transform(img)
         return img

@@ -11,10 +11,11 @@ from torch.autograd import Variable
 from torch.nn import functional as F
 from torchvision import datasets, transforms
 from torchvision.utils import save_image
+from data.dataset import MyDataset
 
 os.environ['CUDA_VISIBLE_DEVICES'] = '3'
 # changed configuration to this instead of argparse for easier interaction
-CUDA = True
+CUDA = True if torch.cuda.is_available() else False
 SEED = 1
 BATCH_SIZE = 128
 LOG_INTERVAL = 10
@@ -34,13 +35,10 @@ kwargs = {'num_workers': 1, 'pin_memory': True} if CUDA else {}
 
 # Download or load downloaded MNIST dataset
 # shuffle data at every epoch
-train_loader = torch.utils.data.DataLoader(
-    datasets.MNIST('./data', train=True, download=True, transform=transforms.ToTensor()),
-    batch_size=BATCH_SIZE, shuffle=True, **kwargs)
-
-# Same for test data
-test_loader = torch.utils.data.DataLoader(datasets.MNIST('./data', train=False, transform=transforms.ToTensor()),
-                                          batch_size=BATCH_SIZE, shuffle=True, **kwargs)
+train_data = MyDataset("./data/daf/train", transforms.ToTensor())
+test_data = MyDataset("./data/daf/test", transforms.ToTensor())
+train_loader = torch.utils.data.DataLoader(train_data, batch_size=BATCH_SIZE, shuffle=True)
+test_loader = torch.utils.data.DataLoader(test_data, batch_size=8, shuffle=False)
 
 
 class VAE(nn.Module):
@@ -160,7 +158,7 @@ def train(epoch):
     train_loss = 0
     # in the case of MNIST, len(train_loader.dataset) is 60000
     # each `data` is of BATCH_SIZE samples and has shape [128, 1, 28, 28]
-    for batch_idx, (data, _) in enumerate(train_loader):
+    for batch_idx, data in enumerate(train_loader):
         data = Variable(data)
         if CUDA:
             data = data.cuda()
@@ -189,7 +187,7 @@ def test(epoch):
     test_loss = 0
 
     # each data is of BATCH_SIZE (default 128) samples
-    for i, (data, _) in enumerate(test_loader):
+    for i, data in enumerate(test_loader):
         if CUDA:
             # make sure this lives on the GPU
             data = data.cuda()
