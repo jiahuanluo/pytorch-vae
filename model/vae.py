@@ -61,12 +61,12 @@ class CNN_VAE(nn.Module):
         )
 
         self.deconv1 = nn.Sequential(
-            nn.ConvTranspose2d(in_channels=17920, out_channels=128, kernel_size=(15, 20), stride=2),
+            nn.ConvTranspose2d(in_channels=256, out_channels=128, kernel_size=4, stride=2, padding=1,
+                               output_padding=(1, 0)),
             nn.ReLU(),
         )
         self.deconv2 = nn.Sequential(
-            nn.ConvTranspose2d(in_channels=128, out_channels=64, kernel_size=3, stride=2, padding=(1, 1),
-                               output_padding=(1, 1)),
+            nn.ConvTranspose2d(in_channels=128, out_channels=64, kernel_size=4, stride=2, padding=1),
             nn.ReLU(),
         )
         self.deconv3 = nn.Sequential(
@@ -108,7 +108,7 @@ class CNN_VAE(nn.Module):
         logvar = self.fc2(h)
         z = self.reparameterize(mu, logvar)
         z = self.fc3(z)
-        z = z.view(z.size(0), 17920, 1, 1)
+        z = z.view(z.size(0), 256, 7, 10)
         print(z.shape)
         return self.decoder(z), mu, logvar
 

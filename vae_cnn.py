@@ -20,7 +20,7 @@ SEED = 1
 BATCH_SIZE = 1
 LOG_INTERVAL = 10
 EPOCHS = 100
-no_of_sample = 10
+no_of_sample = 1
 
 # connections through the autoencoder bottleneck
 # in the pytorch VAE example, this is 20
@@ -48,10 +48,10 @@ class VAE(nn.Module):
         self.conv1 = nn.Conv2d(in_channels=1, out_channels=64, kernel_size=(4, 4), padding=(15, 15),
                                stride=2)  # This padding keeps the size of the image same, i.e. same padding
         self.conv2 = nn.Conv2d(in_channels=64, out_channels=128, kernel_size=(4, 4), padding=(15, 15), stride=2)
-        self.fc11 = nn.Linear(in_features=128 * 120 * 160, out_features=1024)
+        self.fc11 = nn.Linear(in_features=128 * 28 * 28, out_features=1024)
         self.fc12 = nn.Linear(in_features=1024, out_features=ZDIMS)
 
-        self.fc21 = nn.Linear(in_features=128 * 120 * 160, out_features=1024)
+        self.fc21 = nn.Linear(in_features=128 * 28 * 28, out_features=1024)
         self.fc22 = nn.Linear(in_features=1024, out_features=ZDIMS)
         self.relu = nn.ReLU()
 
@@ -65,10 +65,10 @@ class VAE(nn.Module):
 
     def encode(self, x: Variable) -> (Variable, Variable):
 
-        # x = x.view(-1, 1, 120, 160)
+        x = x.view(-1, 1, 28, 28)
         x = F.elu(self.conv1(x))
         x = F.elu(self.conv2(x))
-        x = x.view(-1, 128 * 120 * 160)
+        x = x.view(-1, 128 * 28 * 28)
 
         mu_z = F.elu(self.fc11(x))
         mu_z = self.fc12(mu_z)
@@ -110,7 +110,7 @@ class VAE(nn.Module):
         return x.view(-1, 784)
 
     def forward(self, x: Variable) -> (Variable, Variable, Variable):
-        mu, logvar = self.encode(x.view(-1, 19200))
+        mu, logvar = self.encode(x.view(-1, 784))
         z = self.reparameterize(mu, logvar)
         if self.training:
             return [self.decode(z) for z in z], mu, logvar

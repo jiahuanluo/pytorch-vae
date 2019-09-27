@@ -36,17 +36,17 @@ device = torch.device("cuda" if args.cuda else "cpu")
 kwargs = {'num_workers': 1, 'pin_memory': True} if args.cuda else {}
 train_data = MyDataset("./data/daf/train", transforms.ToTensor())
 test_data = MyDataset("./data/daf/test", transforms.ToTensor())
-# train_loader = torch.utils.data.DataLoader(train_data, batch_size=args.batch_size, shuffle=True)
-# test_loader = torch.utils.data.DataLoader(test_data, batch_size=8, shuffle=False)
-train_loader = torch.utils.data.DataLoader(
-    datasets.MNIST('data', train=True, download=True,
-                   transform=transforms.ToTensor()),
-    batch_size=args.batch_size, shuffle=True, **kwargs)
-test_loader = torch.utils.data.DataLoader(
-    datasets.MNIST('data', train=False, transform=transforms.ToTensor()),
-    batch_size=args.batch_size, shuffle=True, **kwargs)
+train_loader = torch.utils.data.DataLoader(train_data, batch_size=args.batch_size, shuffle=True)
+test_loader = torch.utils.data.DataLoader(test_data, batch_size=8, shuffle=False)
+# train_loader = torch.utils.data.DataLoader(
+#     datasets.MNIST('data', train=True, download=True,
+#                    transform=transforms.ToTensor()),
+#     batch_size=args.batch_size, shuffle=True, **kwargs)
+# test_loader = torch.utils.data.DataLoader(
+#     datasets.MNIST('data', train=False, transform=transforms.ToTensor()),
+#     batch_size=args.batch_size, shuffle=True, **kwargs)
 
-model = VAE().to(device)
+model = CNN_VAE().to(device)
 optimizer = optim.Adam(model.parameters(), lr=1e-3)
 
 
@@ -66,7 +66,7 @@ def loss_function(recon_x, x, mu, logvar):
 def train(epoch):
     model.train()
     train_loss = 0
-    for batch_idx, (data, _) in enumerate(train_loader):
+    for batch_idx, data in enumerate(train_loader):
         data = data.to(device)
         # plt.imshow(transforms.ToPILImage()(data[0]))
         optimizer.zero_grad()
